@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate, NavLink } from "react-router-dom";
 import { Eye, EyeOff, Loader, ArrowLeftCircle } from "lucide-react";
@@ -7,20 +7,32 @@ import { motion } from "framer-motion";
 import "./Login.css";
 import loginImage from "../assets/images/anhchologin.png";
 
-// Cấu hình API
-const API_URL = "http://your-api-url.com/api/login"; // Thay đường dẫn API thật của bạn
-const API_KEY = "YOUR_API_KEY_HERE"; // Thay API key thật của bạn (nếu cần)
+// API endpoint – sau này bạn chỉ cần cập nhật API_KEY
+const API_URL = "http://your-api-url.com/api/login";
+// Để trống API_KEY hiện tại, bạn có thể điền sau nếu cần
+const API_KEY = ""; 
 
-// Theme code tích hợp trực tiếp
+// 2 theme: Dark và Light
 const themes = [
-  { background: "#1A1A2E", color: "#FFFFFF", primaryColor: "#0F3460" },
-  { background: "#461220", color: "#FFFFFF", primaryColor: "#E94560" },
-  { background: "#192A51", color: "#FFFFFF", primaryColor: "#967AA1" },
-  { background: "#231F20", color: "#FFF", primaryColor: "#BB4430" },
+  {
+    // Dark Theme
+    background: "#000000",
+    color: "#FFFFFF",
+    primaryColor: "#333333",
+  },
+  {
+    // Light Theme
+    background: "#FFFFFF",
+    color: "#000000",
+    primaryColor: "#007bff",
+  },
 ];
 
+/**
+ * setTheme: Áp dụng các biến CSS theo theme chọn
+ */
 const setTheme = (theme) => {
-  const root = document.querySelector(":root");
+  const root = document.documentElement;
   if (root) {
     root.style.setProperty("--background", theme.background);
     root.style.setProperty("--color", theme.color);
@@ -28,38 +40,47 @@ const setTheme = (theme) => {
   }
 };
 
-const displayThemeButtons = () => {
-  const btnContainer = document.querySelector(".theme-btn-container");
-  if (!btnContainer) return;
-  btnContainer.innerHTML = "";
-  themes.forEach((theme) => {
-    const btn = document.createElement("div");
-    btn.className = "theme-btn";
-    btn.style.cssText = `
-      background: ${theme.background};
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      cursor: pointer;
-    `;
-    btnContainer.appendChild(btn);
-    btn.addEventListener("click", () => setTheme(theme));
-  });
+/**
+ * ThemeButtons: Render nút chuyển theme dựa vào mảng themes
+ */
+const ThemeButtons = ({ themes }) => {
+  return (
+    <div className="theme-btn-container" aria-label="Theme Selector">
+      {themes.map((theme, index) => (
+        <button
+          key={index}
+          className="theme-btn"
+          style={{ background: theme.background }}
+          onClick={() => setTheme(theme)}
+          title={theme.background === "#000000" ? "Dark Theme" : "Light Theme"}
+          aria-label={
+            theme.background === "#000000"
+              ? "Chọn giao diện tối"
+              : "Chọn giao diện sáng"
+          }
+        />
+      ))}
+    </div>
+  );
 };
 
 const Login = () => {
   const navigate = useNavigate();
+
+  // Quản lý trạng thái form (không còn API key)
   const [user, setUser] = useState({ email: "", password: "" });
   const [formErrors, setFormErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // Xử lý nút Back
-  const handleBack = () => {
+  // Xử lý nút Back về trang chủ
+  const handleBack = useCallback(() => {
     navigate("/");
-  };
+  }, [navigate]);
 
-  const validateForm = (values) => {
+  // Validate form
+  const validateForm = useCallback((values) => {
     const errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
     if (!values.email) errors.email = "Vui lòng nhập email.";
@@ -69,58 +90,67 @@ const Login = () => {
     else if (values.password.length < 6)
       errors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
     return errors;
-  };
+  }, []);
 
+  // Cập nhật giá trị form
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  const togglePassword = () => setShowPassword(!showPassword);
+  // Toggle hiển thị mật khẩu
+  const togglePassword = () => setShowPassword((prev) => !prev);
 
+  // Xử lý đăng nhập
   const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
     const errors = validateForm(user);
     setFormErrors(errors);
     if (Object.keys(errors).length === 0) {
       setLoading(true);
       try {
-        const response = await axios.post(API_URL, user, {
-          headers: {
-            "Authorization": `Bearer ${API_KEY}`,
-          },
-        });
+        const response = await axios.post(
+          API_URL,
+          { email: user.email, password: user.password },
+          {
+            headers: {
+              Authorization: `Bearer ${API_KEY}`,
+            },
+          }
+        );
         if (response.status === 200) {
-          alert("Đăng nhập thành công!");
           localStorage.setItem("user", JSON.stringify(response.data.user));
           navigate("/", { replace: true });
         }
       } catch (error) {
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message
-        ) {
-          alert(error.response.data.message);
-        } else {
-          alert("Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.");
-        }
+        const message =
+          error.response?.data?.message ||
+          "Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.";
+        setErrorMessage(message);
       } finally {
         setLoading(false);
       }
     }
   };
 
+  // Áp dụng theme mặc định (Dark)
   useEffect(() => {
-    displayThemeButtons();
+    setTheme(themes[0]);
   }, []);
 
   return (
     <div className="login-container">
       {/* Nút Back */}
-      <div className="back-button" onClick={handleBack}>
+      <button
+        className="back-button"
+        onClick={handleBack}
+        title="Trở về trang chủ"
+        aria-label="Trở về trang chủ"
+      >
         <ArrowLeftCircle size={36} />
-      </div>
+      </button>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -128,57 +158,95 @@ const Login = () => {
         className="login-box form-container"
       >
         <img src={loginImage} alt="Ảnh Login" className="anhchologin" />
-        <h1 className="login-title opacity">Đăng nhập</h1>
-        <form onSubmit={handleLogin} className="login-form">
+        <h1 className="login-title">Đăng nhập</h1>
+
+        {/* Thông báo lỗi nếu có */}
+        {errorMessage && (
+          <div className="error-message" role="alert">
+            {errorMessage}
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="login-form" noValidate>
+          {/* Input Email */}
           <div className="input-group">
-            <label>Email</label>
+            <label htmlFor="email">Email</label>
             <input
+              id="email"
               type="email"
               name="email"
               placeholder="Nhập email của bạn"
               onChange={handleChange}
               value={user.email}
+              aria-invalid={formErrors.email ? "true" : "false"}
             />
             {formErrors.email && (
-              <p className="error-text">{formErrors.email}</p>
+              <p className="error-text" role="alert">
+                {formErrors.email}
+              </p>
             )}
           </div>
+
+          {/* Input Mật khẩu */}
           <div className="input-group">
-            <label>Mật khẩu</label>
+            <label htmlFor="password">Mật khẩu</label>
             <div className="password-wrapper">
               <input
+                id="password"
                 type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Nhập mật khẩu"
                 onChange={handleChange}
                 value={user.password}
+                aria-invalid={formErrors.password ? "true" : "false"}
               />
               <button
                 type="button"
                 className="password-toggle"
                 onClick={togglePassword}
+                aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                tabIndex={-1}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
             {formErrors.password && (
-              <p className="error-text">{formErrors.password}</p>
+              <p className="error-text" role="alert">
+                {formErrors.password}
+              </p>
             )}
           </div>
+
+          {/* Link Quên mật khẩu */}
           <div className="forgot-password">
             <NavLink to="/forgot-password">Quên mật khẩu?</NavLink>
           </div>
-          <button type="submit" className="login-button" disabled={loading}>
+
+          {/* Nút đăng nhập */}
+          <button
+            type="submit"
+            className="login-button"
+            disabled={loading}
+            aria-busy={loading ? "true" : "false"}
+          >
             {loading ? (
               <Loader className="loading-icon" size={20} />
             ) : (
               "Đăng nhập"
             )}
           </button>
+
+          {/* Link đăng ký */}
+          <div className="register-link">
+            <span>Bạn chưa có tài khoản? </span>
+            <NavLink to="/register" className="login-link">
+              Đăng ký ngay
+            </NavLink>
+          </div>
         </form>
-        <div className="register-link">
-          <p>{/* Nội dung đăng ký nếu có */}</p>
-        </div>
+
+        {/* Nút chuyển theme */}
+        <ThemeButtons themes={themes} />
       </motion.div>
     </div>
   );

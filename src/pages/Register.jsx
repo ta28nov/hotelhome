@@ -1,15 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import axios from "axios";
-import "./Register.css";
-import registerImage from "../assets/images/anhchologin.png"; // Ảnh đăng ký
+import { motion } from "framer-motion";
 
-// Cấu hình API (thay đổi URL và API_KEY theo thiết lập của bạn)
+import "./Register.css";
+import registerImage from "../assets/images/anhchologin.png";
+
+// Cấu hình API – cập nhật URL và API_KEY khi cần
 const API_URL = "http://your-api-url.com/api/register";
-const API_KEY = "YOUR_API_KEY_HERE"; // Nếu API không cần key, có thể xóa header này
+const API_KEY = "YOUR_API_KEY_HERE"; // Nếu API không cần key, bạn có thể xóa header này
 
 const Register = () => {
   const navigate = useNavigate();
+
+  // State quản lý thông tin form đăng ký
   const [user, setUserDetails] = useState({
     fname: "",
     lname: "",
@@ -18,14 +22,17 @@ const Register = () => {
     cccd: "",
   });
   const [formErrors, setFormErrors] = useState({});
-  const [isSubmit, setIsSubmit] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Hàm cập nhật giá trị input
   const changeHandler = (e) => {
     const { name, value } = e.target;
-    setUserDetails({ ...user, [name]: value });
+    setUserDetails((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validateForm = (values) => {
+  // Validate form và trả về object lỗi cho từng field
+  const validateForm = useCallback((values) => {
     const errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     if (!values.fname) errors.fname = "Vui lòng nhập họ.";
@@ -35,61 +42,73 @@ const Register = () => {
     else if (!emailRegex.test(values.email)) errors.email = "Email không hợp lệ.";
     if (!values.cccd) errors.cccd = "Vui lòng nhập CCCD.";
     return errors;
-  };
+  }, []);
 
+  // Xử lý submit form đăng ký
   const handleRegister = async (e) => {
     e.preventDefault();
+    setSubmitError("");
     const errors = validateForm(user);
     setFormErrors(errors);
-    setIsSubmit(true);
 
     if (Object.keys(errors).length === 0) {
+      setIsSubmitting(true);
       try {
-        // Ghép họ và tên để tạo FullName
+        // Ghép họ và tên thành FullName
         const fullName = `${user.fname} ${user.lname}`;
-        // Tạo đối tượng dữ liệu khớp với bảng Customers
+        // Định dạng dữ liệu phù hợp với API (Customers)
         const customerData = {
           FullName: fullName,
           PhoneNumber: user.phone,
           IdentityNumber: user.cccd,
           Email: user.email,
         };
-        // Gọi API đăng ký (POST) và truyền customerData
         const response = await axios.post(API_URL, customerData, {
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_KEY}`, // Nếu không cần key thì xóa dòng này
+            Authorization: `Bearer ${API_KEY}`, // Xóa nếu API không cần key
           },
         });
         if (response.status === 200 || response.status === 201) {
-          alert("Đăng ký thành công!");
+          // Thành công: chuyển hướng sang trang đăng nhập
           navigate("/login", { replace: true });
         }
       } catch (error) {
-        console.error("Registration error:", error);
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message
-        ) {
-          alert(error.response.data.message);
-        } else {
-          alert("Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại sau.");
-        }
+        // Xử lý lỗi từ server và hiển thị thông báo lỗi dưới form
+        const message =
+          error.response?.data?.message ||
+          "Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại sau.";
+        setSubmitError(message);
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
 
   return (
     <div className="register-container">
-      <div className="register-box form-container">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="register-box form-container"
+      >
+        {/* Hình ảnh logo đăng ký */}
         <img
           src={registerImage}
           alt="Ảnh Register"
           className="anhchoregister"
         />
-        <h1 className="register-title opacity">Đăng ký tài khoản</h1>
-        <form onSubmit={handleRegister} className="register-form">
+        <h1 className="register-title">Đăng ký tài khoản</h1>
+
+        {/* Hiển thị lỗi submit nếu có */}
+        {submitError && (
+          <div className="submit-error" role="alert">
+            {submitError}
+          </div>
+        )}
+
+        <form onSubmit={handleRegister} className="register-form" noValidate>
           <div className="input-group">
             <input
               type="text"
@@ -100,7 +119,9 @@ const Register = () => {
               className={formErrors.fname ? "input-error" : ""}
             />
             {formErrors.fname && (
-              <span className="error-message">{formErrors.fname}</span>
+              <span className="error-message" role="alert">
+                {formErrors.fname}
+              </span>
             )}
           </div>
           <div className="input-group">
@@ -113,7 +134,9 @@ const Register = () => {
               className={formErrors.lname ? "input-error" : ""}
             />
             {formErrors.lname && (
-              <span className="error-message">{formErrors.lname}</span>
+              <span className="error-message" role="alert">
+                {formErrors.lname}
+              </span>
             )}
           </div>
           <div className="input-group">
@@ -126,7 +149,9 @@ const Register = () => {
               className={formErrors.phone ? "input-error" : ""}
             />
             {formErrors.phone && (
-              <span className="error-message">{formErrors.phone}</span>
+              <span className="error-message" role="alert">
+                {formErrors.phone}
+              </span>
             )}
           </div>
           <div className="input-group">
@@ -139,7 +164,9 @@ const Register = () => {
               className={formErrors.email ? "input-error" : ""}
             />
             {formErrors.email && (
-              <span className="error-message">{formErrors.email}</span>
+              <span className="error-message" role="alert">
+                {formErrors.email}
+              </span>
             )}
           </div>
           <div className="input-group">
@@ -152,11 +179,18 @@ const Register = () => {
               className={formErrors.cccd ? "input-error" : ""}
             />
             {formErrors.cccd && (
-              <span className="error-message">{formErrors.cccd}</span>
+              <span className="error-message" role="alert">
+                {formErrors.cccd}
+              </span>
             )}
           </div>
-          <button type="submit" className="register-button">
-            Đăng ký
+          <button
+            type="submit"
+            className="register-button"
+            disabled={isSubmitting}
+            aria-busy={isSubmitting ? "true" : "false"}
+          >
+            {isSubmitting ? "Đang xử lý..." : "Đăng ký"}
           </button>
         </form>
         <p className="register-login-link">
@@ -165,8 +199,9 @@ const Register = () => {
             Đăng nhập ngay
           </NavLink>
         </p>
+        {/* Container cho các nút theme (nếu cần) */}
         <div className="theme-btn-container"></div>
-      </div>
+      </motion.div>
     </div>
   );
 };

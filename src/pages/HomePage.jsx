@@ -75,36 +75,78 @@ const RotatingImageText = ({ data, interval = 3000 }) => {
    - Dùng trong Masonry: giữ layout cũ (vị trí tính toán) và thêm hiệu ứng flip khi nhấn vào,
      kèm hiệu ứng hover và khoảng cách giữa các item.
    ============================================================ */
-const FlippableGridItem = ({ item, style }) => {
-  const [flipped, setFlipped] = useState(false);
-
-  return (
-    <motion.div 
-      className="masonry-item"
-      style={style}
-      onClick={() => setFlipped(!flipped)}
-      whileHover={{ scale: 1.05, rotateY: 10 }}
-    >
+   const FlippableGridItem = ({ item, style }) => {
+    const [flipped, setFlipped] = useState(false);
+  
+    return (
       <motion.div 
-        className="masonry-item-inner"
-        animate={{ rotateY: flipped ? 180 : 0 }}
-        transition={{ type: "spring", damping: 20, stiffness: 300 }}
+        className="masonry-item"
+        style={{ ...style, perspective: 1200 }} // Giữ hiệu ứng 3D khi lật
+        onClick={() => setFlipped(!flipped)}
+        whileHover={!flipped ? { scale: 1.08, rotateY: 3 } : { scale: 1.05 }} 
       >
-        {/* Front: hiển thị ảnh */}
-        <div 
-          className="flip-card-front" 
-          style={{ backgroundImage: `url(${item.image})` }}
-        />
-        {/* Back: hiển thị text */}
-        <div className="flip-card-back">
-          <p>{item.text}</p>
-        </div>
+        <motion.div 
+          className="masonry-item-inner"
+          animate={{ rotateY: flipped ? 180 : 0 }}
+          transition={{ type: "spring", damping: 14, stiffness: 180 }} // Giảm damping, tăng độ mượt
+          style={{ 
+            transformStyle: "preserve-3d",
+            position: "relative",
+            width: "100%",
+            height: "100%"
+          }}
+        >
+          {/* Front: hiển thị ảnh */}
+          <motion.div
+            className="flip-card-front"
+            style={{
+              backgroundImage: `url(${item.image})`,
+              height: "100%",
+              width: "100%",
+              position: "absolute",
+              backfaceVisibility: "hidden",
+              backgroundColor: "white", 
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: flipped ? 0 : 1, // Hiệu ứng mượt khi lật
+              transition: "opacity 0.3s ease-in-out",
+            }}
+          />
+  
+          {/* Back: hiển thị text */}
+          <motion.div
+            className="flip-card-back"
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              backgroundColor: "white", // Giữ màu trắng
+              color: "black", // Giữ màu chữ mặc định
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backfaceVisibility: "hidden",
+              transform: "rotateY(180deg)",
+              opacity: flipped ? 1 : 0,
+              transition: "opacity 0.3s ease-in-out",
+            }}
+          >
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
+              {item.text}
+            </motion.p>
+          </motion.div>
+        </motion.div>
       </motion.div>
-    </motion.div>
-  );
-};
+    );
+  };
 
-/* ============================================================
+ 
+  /* ============================================================
    COMPONENT Masonry
    - Sử dụng layout cũ (tính toán vị trí dựa trên số cột) và render FlippableGridItem.
    ============================================================ */

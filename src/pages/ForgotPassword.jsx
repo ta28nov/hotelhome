@@ -1,41 +1,38 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
-import { Eye, EyeOff, Loader } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Eye, EyeOff, Loader, ArrowLeftCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
-import "./ForgotPassword.css"; // Sử dụng file CSS riêng cho ForgotPassword (hoặc bạn có thể dùng Login.css)
+import "./ForgotPassword.css";
 import loginImage from "../assets/images/anhchologin.png";
 
-// Cấu hình API cho chức năng lấy lại mật khẩu
-const API_URL = "http://your-api-url.com/api/forgot-password"; // Thay đổi đường dẫn API thật của bạn
-const API_KEY = "YOUR_API_KEY_HERE"; // Thay API key thật của bạn vào đây (nếu cần)
+// ------------------------
+// API Configuration
+// ------------------------
+const API_URL = "http://your-api-url.com/api/forgot-password";
+const API_KEY = "YOUR_API_KEY_HERE";
 
-// Theme code tích hợp trực tiếp (giống trang Login)
+// ------------------------
+// Theme Configuration
+// ------------------------
 const themes = [
   {
-    background: "#1A1A2E",
+    background: "#000000",
     color: "#FFFFFF",
-    primaryColor: "#0F3460",
+    primaryColor: "#333333",
   },
   {
-    background: "#461220",
-    color: "#FFFFFF",
-    primaryColor: "#E94560",
-  },
-  {
-    background: "#192A51",
-    color: "#FFFFFF",
-    primaryColor: "#967AA1",
-  },
-  {
-    background: "#231F20",
-    color: "#FFF",
-    primaryColor: "#BB4430",
+    background: "#FFFFFF",
+    color: "#000000",
+    primaryColor: "#007bff",
   },
 ];
 
+/**
+ * setTheme: Cập nhật các biến CSS dựa trên theme được chọn
+ */
 const setTheme = (theme) => {
-  const root = document.querySelector(":root");
+  const root = document.documentElement;
   if (root) {
     root.style.setProperty("--background", theme.background);
     root.style.setProperty("--color", theme.color);
@@ -43,28 +40,37 @@ const setTheme = (theme) => {
   }
 };
 
-const displayThemeButtons = () => {
-  const btnContainer = document.querySelector(".theme-btn-container");
-  if (!btnContainer) return;
-  btnContainer.innerHTML = "";
-  themes.forEach((theme) => {
-    const btn = document.createElement("div");
-    btn.className = "theme-btn";
-    btn.style.cssText = `
-      background: ${theme.background};
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      cursor: pointer;
-    `;
-    btnContainer.appendChild(btn);
-    btn.addEventListener("click", () => setTheme(theme));
-  });
+/**
+ * ThemeButtons: Component hiển thị nút chuyển đổi theme
+ */
+const ThemeButtons = ({ themes }) => {
+  return (
+    <div className="theme-btn-container" aria-label="Theme Selector">
+      {themes.map((theme, index) => (
+        <button
+          key={index}
+          className="theme-btn"
+          style={{ background: theme.background }}
+          onClick={() => setTheme(theme)}
+          title={theme.background === "#000000" ? "Dark Theme" : "Light Theme"}
+          aria-label={
+            theme.background === "#000000"
+              ? "Chọn giao diện tối"
+              : "Chọn giao diện sáng"
+          }
+        />
+      ))}
+    </div>
+  );
 };
 
+// ------------------------
+// ForgotPassword Component
+// ------------------------
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  // Sử dụng 4 trường: contact (Email hoặc SĐT), CCCD, newPassword, confirmPassword
+
+  // State quản lý dữ liệu form reset mật khẩu
   const [formData, setFormData] = useState({
     contact: "",
     cccd: "",
@@ -74,29 +80,37 @@ const ForgotPassword = () => {
   const [formErrors, setFormErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  // Kiểm tra trường contact: nếu chứa "@" thì kiểm tra email, nếu không thì kiểm tra số điện thoại
+  /**
+   * validateContact: Kiểm tra tính hợp lệ của trường contact (Email hoặc SĐT)
+   */
   const validateContact = (value) => {
     if (!value) return "Vui lòng nhập email hoặc số điện thoại.";
     if (value.includes("@")) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
       if (!emailRegex.test(value)) return "Vui lòng nhập đúng email.";
     } else {
-      const phoneRegex = /^\d{9,11}$/; // Giả sử số điện thoại từ 9 đến 11 số
-      if (!phoneRegex.test(value)) return "Vui lòng nhập đúng số điện thoại.";
+      const phoneRegex = /^\d{9,11}$/;
+      if (!phoneRegex.test(value))
+        return "Vui lòng nhập đúng số điện thoại.";
     }
     return "";
   };
 
-  const validateForm = (values) => {
+  /**
+   * validateForm: Kiểm tra tính hợp lệ của toàn bộ form
+   */
+  const validateForm = useCallback((values) => {
     const errors = {};
+
     const contactError = validateContact(values.contact);
     if (contactError) errors.contact = contactError;
 
     if (!values.cccd) {
       errors.cccd = "Vui lòng nhập CCCD.";
     } else {
-      const cccdRegex = /^\d{9,12}$/; // CCCD có thể từ 9 đến 12 số
+      const cccdRegex = /^\d{9,12}$/;
       if (!cccdRegex.test(values.cccd)) {
         errors.cccd = "Vui lòng nhập đúng CCCD.";
       }
@@ -114,27 +128,30 @@ const ForgotPassword = () => {
       errors.confirmPassword = "Mật khẩu không khớp.";
     }
     return errors;
-  };
+  }, []);
 
+  // Cập nhật state form khi input thay đổi
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Toggle hiển thị mật khẩu
   const togglePassword = () => setShowPassword((prev) => !prev);
 
+  // Xử lý submit form reset mật khẩu
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitError("");
     const errors = validateForm(formData);
     setFormErrors(errors);
     if (Object.keys(errors).length === 0) {
       setLoading(true);
       try {
-        // Gọi API đặt lại mật khẩu với dữ liệu formData
         const response = await axios.post(API_URL, formData, {
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_KEY}`, // Nếu API không cần key, xóa dòng này
+            "Authorization": `Bearer ${API_KEY}`,
           },
         });
         if (response.status === 200) {
@@ -142,28 +159,33 @@ const ForgotPassword = () => {
           navigate("/login", { replace: true });
         }
       } catch (error) {
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message
-        ) {
-          alert(error.response.data.message);
-        } else {
-          alert("Đã xảy ra lỗi khi đặt lại mật khẩu. Vui lòng thử lại sau.");
-        }
+        const message =
+          error.response?.data?.message ||
+          "Đã xảy ra lỗi khi đặt lại mật khẩu. Vui lòng thử lại sau.";
+        setSubmitError(message);
       } finally {
         setLoading(false);
       }
     }
   };
 
+  // Áp dụng theme mặc định khi component mount
   useEffect(() => {
-    // Hiển thị các nút chuyển theme khi component mount
-    displayThemeButtons();
+    setTheme(themes[0]);
   }, []);
 
   return (
     <div className="login-container">
+      {/* Nút quay lại đăng nhập */}
+      <button
+        className="back-button"
+        onClick={() => navigate("/login")}
+        title="Quay lại đăng nhập"
+        aria-label="Quay lại đăng nhập"
+      >
+        <ArrowLeftCircle size={36} />
+      </button>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -175,8 +197,15 @@ const ForgotPassword = () => {
           alt="Ảnh Reset Password"
           className="anhchologin"
         />
-        <h1 className="login-title opacity">Lấy lại mật khẩu</h1>
-        <form onSubmit={handleSubmit} className="login-form">
+        <h1 className="login-title">Lấy lại mật khẩu</h1>
+
+        {submitError && (
+          <div className="submit-error" role="alert">
+            {submitError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="login-form" noValidate>
           <div className="input-group">
             <label>Email hoặc SĐT</label>
             <input
@@ -188,7 +217,9 @@ const ForgotPassword = () => {
               className={formErrors.contact ? "input-error" : ""}
             />
             {formErrors.contact && (
-              <span className="error-message">{formErrors.contact}</span>
+              <span className="error-message" role="alert">
+                {formErrors.contact}
+              </span>
             )}
           </div>
           <div className="input-group">
@@ -202,7 +233,9 @@ const ForgotPassword = () => {
               className={formErrors.cccd ? "input-error" : ""}
             />
             {formErrors.cccd && (
-              <span className="error-message">{formErrors.cccd}</span>
+              <span className="error-message" role="alert">
+                {formErrors.cccd}
+              </span>
             )}
           </div>
           <div className="input-group">
@@ -225,7 +258,9 @@ const ForgotPassword = () => {
               </button>
             </div>
             {formErrors.newPassword && (
-              <span className="error-message">{formErrors.newPassword}</span>
+              <span className="error-message" role="alert">
+                {formErrors.newPassword}
+              </span>
             )}
           </div>
           <div className="input-group">
@@ -239,7 +274,9 @@ const ForgotPassword = () => {
               className={formErrors.confirmPassword ? "input-error" : ""}
             />
             {formErrors.confirmPassword && (
-              <span className="error-message">{formErrors.confirmPassword}</span>
+              <span className="error-message" role="alert">
+                {formErrors.confirmPassword}
+              </span>
             )}
           </div>
           <button type="submit" className="login-button" disabled={loading}>
@@ -250,7 +287,7 @@ const ForgotPassword = () => {
             )}
           </button>
         </form>
-        <div className="theme-btn-container"></div>
+        <ThemeButtons themes={themes} />
       </motion.div>
     </div>
   );

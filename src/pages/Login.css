@@ -1,42 +1,44 @@
+/* Các biến CSS toàn cục được định nghĩa theo theme */
 :root {
-  --background: #1a1a2e;
+  --background: #000000; /* Mặc định Dark Theme */
   --color: #ffffff;
-  --primary-color: #0f3460;
+  --primary-color: #333333;
 }
 
-/* Reset & Global */
+/* Reset & Global Styles */
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
+
 html {
   scroll-behavior: smooth;
+  font-size: 16px;
 }
+
 body {
-  margin: 0;
   font-family: "Poppins", sans-serif;
   background: var(--background);
   color: var(--color);
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
-/* Container chung */
+/* Container chính cho form Login */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 80vh;
+  padding: 1rem;
 }
 
-/* Hộp chứa form - không có animation hay hover */
-.login-box {
+/* Hộp chứa form Login với hiệu ứng glassmorphism */
+.login-box.form-container {
   position: relative;
-  width: 25rem;
-  height: auto;
-  /* Loại bỏ animation glow và hover */
-}
-
-/* Glassmorphism effect cho form container */
-.form-container {
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
   border: 1px solid hsla(0, 0%, 65%, 0.158);
   box-shadow: 0 0 36px 1px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
@@ -45,78 +47,94 @@ body {
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Ảnh logo login - chỉ có hiệu ứng hover khi trỏ chuột vào ảnh */
+/* Nút Back */
+.back-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.back-button:hover {
+  transform: scale(1.1);
+}
+
+/* Ảnh logo */
 .anhchologin {
   position: absolute;
   top: 20px;
   right: 20px;
   width: 150px;
   height: auto;
-  /* Kiểu transform ban đầu */
   transform: perspective(1000px) rotateX(10deg) rotateY(-10deg);
   transition: transform 0.5s ease;
-}
-
-/* Hiệu ứng animation chỉ khi hover vào ảnh */
-@keyframes imagePulse {
-  0% { transform: perspective(1000px) rotateX(10deg) rotateY(-10deg) scale(1); }
-  50% { transform: perspective(1000px) rotateX(15deg) rotateY(-15deg) scale(1.05); }
-  100% { transform: perspective(1000px) rotateX(10deg) rotateY(-10deg) scale(1); }
 }
 
 .anhchologin:hover {
   animation: imagePulse 2s infinite ease-in-out;
 }
 
-/* Đảm bảo vị trí ảnh ổn định trên các thiết bị */
-@media (max-width: 480px) {
-  .anhchologin {
-    width: 120px;
-    top: 10px;
-    right: 10px;
+/* Animation cho ảnh logo */
+@keyframes imagePulse {
+  0% {
+    transform: perspective(1000px) rotateX(10deg) rotateY(-10deg) scale(1);
+  }
+  50% {
+    transform: perspective(1000px) rotateX(15deg) rotateY(-15deg) scale(1.05);
+  }
+  100% {
+    transform: perspective(1000px) rotateX(10deg) rotateY(-10deg) scale(1);
   }
 }
 
-/* Tiêu đề */
+/* Tiêu đề đăng nhập */
 .login-title {
   text-align: center;
   font-size: 1.8rem;
   font-weight: bold;
   margin-bottom: 1.5rem;
   font-family: "Montserrat", sans-serif;
-  opacity: 0.8;
 }
 
 /* Nhóm input */
 .input-group {
   margin-bottom: 1.5rem;
 }
+
 .input-group label {
   display: block;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
 }
+
 .input-group input {
   width: 100%;
-  padding: 14.5px;
-  margin: 0.5rem 0;
+  padding: 0.9rem;
+  margin-top: 0.3rem;
   color: var(--color);
   background-color: rgba(145, 145, 145, 0.12);
   border: none;
   border-radius: 5px;
-  font-size: 15px;
+  font-size: 1rem;
   backdrop-filter: blur(15px);
   transition: box-shadow 0.3s ease;
 }
+
 .input-group input:focus {
+  outline: none;
   box-shadow: 0 0 16px 1px rgba(0, 0, 0, 0.2);
-  animation: wobble 0.3s ease-in;
 }
 
-/* Wrapper cho input mật khẩu và nút toggle */
+/* Wrapper cho input mật khẩu */
 .password-wrapper {
   position: relative;
 }
+
 .password-toggle {
   position: absolute;
   right: 10px;
@@ -133,19 +151,21 @@ body {
   text-align: right;
   margin-bottom: 1.5rem;
 }
+
 .forgot-password a {
   font-size: 0.9rem;
   color: var(--primary-color);
   text-decoration: none;
 }
+
 .forgot-password a:hover {
-text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* Nút đăng nhập */
 .login-button {
   width: 100%;
-  padding: 13px;
+  padding: 0.9rem;
   border: none;
   border-radius: 5px;
   background-color: var(--primary-color);
@@ -154,29 +174,51 @@ text-decoration: underline;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.1s ease-in-out;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
+
 .login-button:hover {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
   transform: scale(1.02);
 }
 
-/* Link chuyển trang (đăng ký) */
+/* Link đăng ký */
 .register-link {
   text-align: center;
   font-size: 0.9rem;
+  margin-top: 1rem;
   color: var(--color);
 }
+
 .login-link {
   color: var(--primary-color);
   font-weight: bold;
   text-decoration: none;
 }
+
 .login-link:hover {
   text-decoration: underline;
 }
 
-/* Container cho các nút theme */
+/* Thông báo lỗi */
+.error-message {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: #ffcccc;
+  color: #990000;
+  border: 1px solid #990000;
+  border-radius: 5px;
+  text-align: center;
+}
+
+/* Hiển thị lỗi bên dưới input */
+.error-text {
+  font-size: 0.85rem;
+  color: #ff4d4f;
+  margin-top: 0.3rem;
+}
+
+/* Container nút chuyển theme */
 .theme-btn-container {
   margin-top: 1rem;
   display: flex;
@@ -184,34 +226,32 @@ text-decoration: underline;
   gap: 10px;
 }
 
-/* Animation wobble */
-@keyframes wobble {
-  0% { transform: scale(1.025); }
-  25% { transform: scale(1); }
-  75% { transform: scale(1.025); }
-  100% { transform: scale(1); }
-}
-
-/* Animation cho loading icon */
-.loading-icon {
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Nút Back: chỉ icon, không có hover cho khung */
-.back-button {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: none;
+/* Nút chuyển theme */
+.theme-btn {
+  width: 25px;
+  height: 25px;
   border: none;
-  color: var(--primary-color);
+  border-radius: 50%;
   cursor: pointer;
-  transition: transform 0.3s ease;
-  z-index: 1000;
+  transition: transform 0.2s ease;
 }
-.back-button:hover {
+
+.theme-btn:hover {
   transform: scale(1.1);
+}
+
+/* Responsive cho mobile */
+@media (max-width: 480px) {
+  .login-box.form-container {
+    padding: 1rem;
+    max-width: 95%;
+  }
+  .anhchologin {
+    width: 120px;
+    top: 10px;
+    right: 10px;
+  }
+  .login-title {
+    font-size: 1.6rem;
+  }
 }

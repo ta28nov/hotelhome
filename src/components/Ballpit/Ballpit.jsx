@@ -556,7 +556,7 @@ class Y extends c {
 // Cấu hình mặc định cho Ballpit
 const X = {
   count: 200,
-  colors: [0x4169E1, 0xffffff, 0x808080, 0x000000],
+  colors: [0x05C3DD,0x0099CC, 0xffffff, 0x808080, 0x000000],
   ambientColor: 16777215,
   ambientIntensity: 1,
   lightIntensity: 200,

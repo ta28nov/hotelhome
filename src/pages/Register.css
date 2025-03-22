@@ -1,10 +1,11 @@
+/* Các biến CSS toàn cục */
 :root {
   --background: #f4f4f4;
   --color: #333333;
   --primary-color: #007bff;
 }
 
-/* Reset & Global */
+/* Reset & Global Styles */
 * {
   box-sizing: border-box;
 }
@@ -19,7 +20,7 @@ body {
   transition: background 0.5s ease, color 0.5s ease;
 }
 
-/* Container chung cho form */
+/* Container chính cho form */
 .register-container {
   display: flex;
   justify-content: center;
@@ -32,6 +33,7 @@ body {
 .register-box {
   position: relative;
   width: 22.2rem;
+  margin: auto;
 }
 .form-container {
   background: rgba(255, 255, 255, 0.1);
@@ -43,7 +45,7 @@ body {
   transition: background 0.3s ease, transform 0.3s ease;
 }
 
-/* Hiệu ứng hover nảy nhẹ cho form */
+/* Hover hiệu ứng cho form */
 .form-container:hover {
   animation: gentlePulse 3s infinite ease-in-out;
 }
@@ -106,7 +108,7 @@ body {
   100% { transform: scale(1); }
 }
 
-/* Hiển thị lỗi */
+/* Hiển thị lỗi khi input không hợp lệ */
 .input-error {
   border: 1px solid red !important;
 }
@@ -116,6 +118,17 @@ body {
   position: absolute;
   left: 5px;
   bottom: -18px;
+}
+
+/* Thông báo lỗi submit */
+.submit-error {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: #ffcccc;
+  color: #990000;
+  border: 1px solid #990000;
+  border-radius: 5px;
+  text-align: center;
 }
 
 /* Nút đăng ký */
@@ -129,7 +142,7 @@ body {
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
   margin-bottom: 2rem;
 }
 .register-button:hover {
@@ -152,10 +165,58 @@ transition: all 0.1s ease-in-out;
   text-decoration: underline;
 }
 
-/* Container cho các nút theme */
+/* Container cho các nút theme (nếu sử dụng) */
 .theme-btn-container {
   margin-top: 1rem;
   display: flex;
   justify-content: center;
   gap: 10px;
+}
+
+/* Media Queries cho responsive */
+
+/* Khi màn hình có chiều rộng tối đa 768px */
+@media (max-width: 768px) {
+  .register-box {
+    width: 90%;
+    padding: 1rem;
+  }
+  .form-container {
+    padding: 1.5rem;
+  }
+  .register-title {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+  .input-group input {
+    padding: 12px;
+    font-size: 14px;
+  }
+  .register-button {
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Khi màn hình có chiều rộng tối đa 480px */
+@media (max-width: 480px) {
+  .register-box {
+    width: 95%;
+    padding: 0.5rem;
+  }
+  .form-container {
+    padding: 1rem;
+  }
+  .register-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+  }
+  .input-group input {
+    padding: 10px;
+    font-size: 13px;
+  }
+  .register-button {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
 }
