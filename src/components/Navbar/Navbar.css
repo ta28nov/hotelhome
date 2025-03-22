@@ -1,0 +1,179 @@
+/* ---------- Tổng thể Navbar ---------- */
+.navbar {
+  background-color: transparent;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 100;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+/* ---------- Style cho Dock (Navigation) ---------- */
+.dock-outer {
+  margin: 0;
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+}
+
+.dock-panel {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  border-radius: 1rem;
+  background-color: transparent;
+  /* Không chỉnh viền hay khung */
+  padding: 0;
+}
+
+.dock-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background-color: #060606;
+  cursor: pointer;
+  outline: none;
+}
+
+.dock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e0e0e0;
+}
+
+.dock-label {
+  position: absolute;
+  top: -1.5rem;
+  left: 50%;
+  width: fit-content;
+  white-space: pre;
+  border-radius: 0.375rem;
+  background-color: #060606;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  color: #fff;
+  transform: translateX(-50%);
+}
+
+/* ---------- Style cho HotelSearchBar (Booking Bar) ---------- */
+.hotel-search-bar {
+  margin-top: 0.8rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.8rem 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  width: 70%;
+  max-width: 1000px;
+  align-items: center;
+  font-family: 'Playfair Display', serif;
+}
+
+.hotel-search-bar .search-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 130px;
+}
+
+.hotel-search-bar .search-field label {
+  font-size: 0.75rem;
+  color: #333;
+  margin-bottom: 0.2rem;
+}
+
+.hotel-search-bar .search-field input,
+.hotel-search-bar .search-field select {
+  padding: 0.4rem;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.3s;
+  font-family: 'Playfair Display', serif;
+}
+
+.hotel-search-bar .search-field input:focus,
+.hotel-search-bar .search-field select:focus {
+  border-color: #a94442;
+}
+
+/* ---------- Style cho nút "Đặt phòng" ---------- */
+.book-now-button {
+  margin: 0 auto; /* Căn giữa */
+  padding: 0.5rem 1rem;
+  background: #707070; /* Nền xám */
+  color: #F5F5F5; /* Chữ xám trắng */
+  border: none;
+  border-radius: 15px; /* Bo tròn góc */
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+  font-family: 'Playfair Display', serif;
+  white-space: nowrap;
+  display: block;
+}
+
+.book-now-button:hover {
+  background: #5A5A5A;
+  transform: scale(1.03);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ---------- Style cho ShinyText (hiệu ứng gradient) ---------- */
+.shiny-text {
+  color: #F5F5F5;
+  background: linear-gradient(
+    120deg,
+    rgba(245, 245, 245, 0) 40%,
+    rgba(245, 245, 245, 0.8) 50%,
+    rgba(245, 245, 245, 0) 60%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  display: inline-block;
+  animation: shine 5s linear infinite;
+  white-space: nowrap;
+}
+
+@keyframes shine {
+  0% {
+    background-position: 100%;
+  }
+  100% {
+    background-position: -100%;
+  }
+}
+
+.shiny-text.disabled {
+  animation: none;
+}
+
+/* ---------- Style cho CollapsedSearchItem (khi cuộn xuống) ---------- */
+/* Bỏ phần CollapsedSearchItem vì yêu cầu là chỉ ẩn thanh tìm kiếm */
+.collapsed-search-item {
+  display: none;
+}
+
+/* ---------- Responsive: Điều chỉnh bố cục cho màn hình nhỏ ---------- */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 0.5rem;
+  }
+  .dock-outer,
+  .hotel-search-bar {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,161 @@
+:root {
+  --background: #f4f4f4;
+  --color: #333333;
+  --primary-color: #007bff;
+}
+
+/* Reset & Global */
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: var(--background);
+  color: var(--color);
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+/* Container chung cho form */
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/* Hộp chứa form với hiệu ứng glassmorphism */
+.register-box {
+  position: relative;
+  width: 22.2rem;
+}
+.form-container {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid hsla(0, 0%, 65%, 0.158);
+  box-shadow: 0 0 36px 1px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  backdrop-filter: blur(20px);
+  padding: 2rem;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+/* Hiệu ứng hover nảy nhẹ cho form */
+.form-container:hover {
+  animation: gentlePulse 3s infinite ease-in-out;
+}
+@keyframes gentlePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Hình ảnh logo Register */
+.anhchoregister {
+  display: block;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 90%;
+  max-width: 200px;
+  height: auto;
+  transform: perspective(1000px) rotateX(10deg) rotateY(-10deg);
+  transition: transform 0.5s ease;
+}
+.register-box:hover .anhchoregister {
+  transform: perspective(1000px) rotateX(15deg) rotateY(-15deg) scale(1.05);
+}
+
+/* Tiêu đề đăng ký */
+.register-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+/* Nhóm input */
+.input-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+.input-group input {
+  width: 100%;
+  padding: 14.5px;
+  margin: 0.5rem 0;
+  font-size: 15px;
+  color: var(--color);
+  background-color: rgba(145, 145, 145, 0.12);
+  border: none;
+  border-radius: 5px;
+  backdrop-filter: blur(15px);
+  transition: box-shadow 0.3s ease;
+}
+.input-group input:focus {
+  box-shadow: 0 0 16px 1px rgba(0, 0, 0, 0.2);
+  animation: wobble 0.3s ease-in;
+}
+@keyframes wobble {
+  0% { transform: scale(1.025); }
+  25% { transform: scale(1); }
+  75% { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+
+/* Hiển thị lỗi */
+.input-error {
+  border: 1px solid red !important;
+}
+.error-message {
+  color: #e53e3e;
+  font-size: 0.8rem;
+  position: absolute;
+  left: 5px;
+  bottom: -18px;
+}
+
+/* Nút đăng ký */
+.register-button {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 5px;
+  background: var(--primary-color);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+transition: all 0.1s ease-in-out;
+  margin-bottom: 2rem;
+}
+.register-button:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+
+/* Link chuyển trang (đăng nhập) */
+.register-login-link {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color);
+}
+.login-link {
+  color: var(--primary-color);
+  font-weight: bold;
+  text-decoration: none;
+}
+.login-link:hover {
+  text-decoration: underline;
+}
+
+/* Container cho các nút theme */
+.theme-btn-container {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}

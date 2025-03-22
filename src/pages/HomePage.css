@@ -1,0 +1,137 @@
+/* ---------- Tổng thể HomePage ---------- */
+.home-container {
+  position: relative;
+  min-height: 200vh;
+  font-family: Arial, sans-serif;
+  background-color: transparent;
+}
+
+/* ---------- Ballpit background ---------- */
+.ballpit-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  transition: opacity 0.5s ease-out;
+  z-index: -1;
+}
+
+/* ---------- Header và Navbar ---------- */
+.home-header {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+}
+
+/* ---------- Phần nội dung giới thiệu ---------- */
+.home-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-top: 150px;
+  padding: 20px;
+}
+
+/* ---------- Phần nội dung bên dưới (Discover More + Masonry) ---------- */
+.more-content {
+  background-color: transparent;
+  color: #333;
+  padding: 50px;
+  margin-top: 100vh;
+  text-align: center;
+}
+
+/* ---------- CSS cho RotatingImageText ---------- */
+.rotating-image-text {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rotating-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rotating-overlay {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px 20px;
+  border-radius: 4px;
+}
+
+/* ---------- CSS cho Masonry (layout cũ với tính toán vị trí) ---------- */
+.masonry {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Mặc định các masonry-item được định vị tuyệt đối theo vị trí tính toán */
+.masonry-item {
+  position: absolute;
+  cursor: pointer;
+  /* Padding được thêm để tạo khoảng cách giữa các item */
+  padding: 5px;
+}
+
+/* Nội dung bên trong item: hiệu ứng flip, giữ định dạng cũ của hình */
+.masonry-item-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+}
+
+/* Front side */
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 10px;
+}
+
+/* Front: hiển thị ảnh */
+.flip-card-front {
+  background-size: cover;
+  background-position: center;
+}
+
+/* Back: hiển thị text */
+.flip-card-back {
+  background-color: #fff;
+  color: #000;
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .home-container {
+    padding: 0.5rem;
+  }
+  .masonry,
+  .rotating-image-text {
+    width: 100%;
+    justify-content: center;
+  }
+}
