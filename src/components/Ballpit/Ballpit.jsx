@@ -1,6 +1,8 @@
 import { useRef, useEffect } from 'react';
-// --- Import các thành phần cần thiết từ Three.js ---
-// Dùng alias để rút gọn tên (ví dụ: Clock -> e)
+
+// ==============================
+// IMPORT CÁC THÀNH PHẦN CẦN THIẾT TỪ THREE.JS
+// Dùng alias để rút gọn tên và tăng tính rõ ràng.
 import {
   Clock as e,                   // Quản lý thời gian (tính delta cho animation)
   PerspectiveCamera as t,         // Camera phối cảnh
@@ -24,38 +26,40 @@ import {
   Plane as w,                    // Lớp mặt phẳng, dùng trong việc tính giao nhau với tia
 } from "three";
 
-// --- Import môi trường phòng (RoomEnvironment) để tạo hiệu ứng envMap ---
+// ------------------------------
+// IMPORT MÔI TRƯỜNG PHÒNG (RoomEnvironment) để tạo hiệu ứng envMap
 import { RoomEnvironment as z } from "three/examples/jsm/environments/RoomEnvironment.js";
 
-/**
- * Class quản lý toàn bộ scene, camera, renderer và các sự kiện (resize, visibility,...)
- */
+// ==================================================
+// CLASS x
+// Quản lý toàn bộ scene, camera, renderer và các sự kiện (resize, intersection, visibility)
+// Đã cập nhật màu nền của scene và renderer thành light gray (0xf7f7f7)
 class x {
-  #e; // Cấu hình đầu vào
-  canvas; // Phần tử canvas render
-  camera; // Camera của scene
+  #e;           // Cấu hình đầu vào
+  canvas;       // Phần tử canvas render
+  camera;       // Camera của scene
   cameraMinAspect; // Aspect tối thiểu (nếu cần điều chỉnh FOV)
   cameraMaxAspect; // Aspect tối đa (nếu cần điều chỉnh FOV)
-  cameraFov; // FOV ban đầu của camera
+  cameraFov;    // FOV ban đầu của camera
   maxPixelRatio; // Pixel ratio tối đa
   minPixelRatio; // Pixel ratio tối thiểu
-  scene; // Scene chứa các đối tượng 3D
-  renderer; // WebGLRenderer để render scene
-  #t; // Tham chiếu postprocessing (nếu có)
+  scene;        // Scene chứa các đối tượng 3D
+  renderer;     // WebGLRenderer để render scene
+  #t;           // Tham chiếu postprocessing (nếu có)
   size = { width: 0, height: 0, wWidth: 0, wHeight: 0, ratio: 0, pixelRatio: 0 }; // Kích thước canvas và world
-  render = this.#i; // Hàm render mặc định (gọi renderer.render)
+  render = this.#i;   // Hàm render mặc định (gọi renderer.render)
   onBeforeRender = () => {}; // Callback trước mỗi frame
-  onAfterRender = () => {}; // Callback sau mỗi frame
-  onAfterResize = () => {}; // Callback sau khi resize
-  #s = false; // Trạng thái canvas có nằm trong viewport hay không
-  #n = false; // Trạng thái animation (đang chạy hay dừng)
+  onAfterRender = () => {};  // Callback sau mỗi frame
+  onAfterResize = () => {};  // Callback sau khi resize
+  #s = false;   // Trạng thái canvas có nằm trong viewport hay không
+  #n = false;   // Trạng thái animation (đang chạy hay dừng)
   isDisposed = false; // Kiểm tra đã dispose hay chưa
-  #o; // IntersectionObserver
-  #r; // ResizeObserver
-  #a; // Timeout ID cho resize
-  #c = new e();  // Clock để tính toán delta giữa các frame
+  #o;           // IntersectionObserver
+  #r;           // ResizeObserver
+  #a;           // Timeout ID cho resize
+  #c = new e(); // Clock để tính toán delta giữa các frame
   #h = { elapsed: 0, delta: 0 }; // Lưu trữ thời gian elapsed và delta
-  #l; // ID của requestAnimationFrame
+  #l;           // ID của requestAnimationFrame
 
   constructor(e) {
     this.#e = { ...e };
@@ -72,14 +76,15 @@ class x {
     this.cameraFov = this.camera.fov;
   }
   
-  // --- Khởi tạo scene và đặt background ---
+  // --- Khởi tạo scene và đặt background ---  
+  // Cập nhật background thành light gray (0xf7f7f7)
   #d() {
     this.scene = new i();
-    // Đặt background của scene thành dark gray (0x333333)
-    this.scene.background = new l(0x333333);
+    this.scene.background = new l(0xf7f7f7);
   }
   
   // --- Khởi tạo renderer và thiết lập clear color ---
+  // Cập nhật clear color thành light gray (0xf7f7f7)
   #p() {
     if (this.#e.canvas) {
       this.canvas = this.#e.canvas;
@@ -96,28 +101,24 @@ class x {
     };
     this.renderer = new s(e);
     this.renderer.outputColorSpace = n;
-    // Đặt clear color của renderer thành dark gray (0x333333)
-    this.renderer.setClearColor(0x333333, 1);
+    this.renderer.setClearColor(0xf7f7f7, 1);
   }
   
-  // --- Thiết lập các sự kiện: resize, intersection (viewport) và visibility change ---
+  // --- Thiết lập các sự kiện: resize, intersection, visibility ---
   #g() {
     if (!(this.#e.size instanceof Object)) {
       window.addEventListener("resize", this.#f.bind(this));
-      // Nếu size là "parent", dùng ResizeObserver trên parent của canvas
       if (this.#e.size === "parent" && this.canvas.parentNode) {
         this.#r = new ResizeObserver(this.#f.bind(this));
         this.#r.observe(this.canvas.parentNode);
       }
     }
-    // Sử dụng IntersectionObserver để kiểm tra canvas có nằm trong viewport không
     this.#o = new IntersectionObserver(this.#u.bind(this), {
       root: null,
       rootMargin: "0px",
       threshold: 0,
     });
     this.#o.observe(this.canvas);
-    // Lắng nghe sự thay đổi visibility (ví dụ: khi người dùng chuyển tab)
     document.addEventListener("visibilitychange", this.#v.bind(this));
   }
   
@@ -285,10 +286,9 @@ class x {
   }
 }
 
-// ------------------------
-// Xử lý các sự kiện chuột để tương tác với canvas
-
-// Sử dụng Map để lưu DOM element và các callback liên quan
+// ==============================
+// XỬ LÝ CÁC SỰ KIỆN CHUỘT (Pointer Events)
+// Sử dụng Map để lưu DOM element và các callback liên quan.
 const b = new Map(),
   A = new r(); // Vector2 lưu vị trí chuột (clientX, clientY)
 let R = false; // Cờ đánh dấu đã đăng ký event cho body hay chưa
@@ -296,13 +296,13 @@ let R = false; // Cờ đánh dấu đã đăng ký event cho body hay chưa
 // --- Hàm S: đăng ký sự kiện chuột cho một DOM element ---
 function S(e) {
   const t = {
-    position: new r(), // Vị trí chuột tương đối so với element
-    nPosition: new r(), // Vị trí normalized (-1 đến 1)
-    hover: false,       // Trạng thái hover
-    onEnter() {},      // Callback khi chuột enter element
-    onMove() {},       // Callback khi chuột di chuyển trong element
-    onClick() {},      // Callback khi click
-    onLeave() {},      // Callback khi chuột rời khỏi element
+    position: new r(),    // Vị trí chuột tương đối so với element
+    nPosition: new r(),   // Vị trí normalized (-1 đến 1)
+    hover: false,         // Trạng thái hover
+    onEnter() {},         // Callback khi chuột enter element
+    onMove() {},          // Callback khi chuột di chuyển trong element
+    onClick() {},         // Callback khi click
+    onLeave() {},         // Callback khi chuột rời khỏi element
     ...e,
   };
   (function (e, t) {
@@ -385,8 +385,8 @@ function D(e) {
   return t >= s && t <= s + o && i >= n && i <= n + r;
 }
 
-// ------------------------
-// Các hàm tiện ích từ MathUtils
+// ==============================
+// CÁC HÀM TIỆN ÍCH TỪ MathUtils
 const { randFloat: k, randFloatSpread: E } = o;
 
 // Khởi tạo các vector dùng cho tính toán vật lý
@@ -401,8 +401,8 @@ const j = new a();
 const H = new a();
 const T = new a();
 
-// ------------------------
-// Lớp xử lý vật lý cho các sphere
+// ==============================
+// CLASS W: Xử lý vật lý cho các sphere
 class W {
   constructor(e) {
     this.config = e;
@@ -410,7 +410,7 @@ class W {
     this.velocityData = new Float32Array(3 * e.count).fill(0);
     this.sizeData = new Float32Array(e.count).fill(1);
     this.center = new a();
-    this.#R(); // Khởi tạo vị trí ban đầu
+    this.#R();       // Khởi tạo vị trí ban đầu
     this.setSizes(); // Thiết lập kích thước ban đầu
   }
   // --- Khởi tạo vị trí ban đầu cho các sphere ---
@@ -517,8 +517,8 @@ class W {
   }
 }
 
-// ------------------------
-// Lớp mở rộng MeshPhysicalMaterial để thêm hiệu ứng scattering cho clearcoat
+// ==============================
+// CLASS Y: Mở rộng MeshPhysicalMaterial để thêm hiệu ứng scattering cho clearcoat
 class Y extends c {
   constructor(e) {
     super(e);
@@ -552,11 +552,11 @@ class Y extends c {
   }
 }
 
-// ------------------------
-// Cấu hình mặc định cho Ballpit
+// ==============================
+// CẤU HÌNH MẶC ĐỊNH CHO Ballpit
 const X = {
   count: 200,
-  colors: [0x05C3DD,0x0099CC, 0xffffff, 0x808080, 0x000000],
+  colors: [0x05C3DD, 0x0099CC, 0xffffff, 0x808080, 0x000000],
   ambientColor: 16777215,
   ambientIntensity: 1,
   lightIntensity: 200,
@@ -582,8 +582,8 @@ const X = {
 
 const U = new m(); // Object3D dùng để cập nhật matrix cho mỗi instance
 
-// ------------------------
-// Lớp kế thừa InstancedMesh để render các sphere
+// ==============================
+// CLASS Z: Kế thừa InstancedMesh để render các sphere
 class Z extends d {
   constructor(e, t = {}) {
     const i = { ...X, ...t };
@@ -595,7 +595,7 @@ class Z extends d {
     super(o, r, i.count);
     this.config = i;
     this.physics = new W(i); // Tạo instance vật lý cho sphere
-    this.#S(); // Thiết lập ánh sáng
+    this.#S();  // Thiết lập ánh sáng
     this.setColors(i.colors); // Cài đặt màu sắc cho sphere
   }
   // --- Thiết lập ánh sáng cho Ballpit ---
@@ -666,8 +666,8 @@ class Z extends d {
   }
 }
 
-// ------------------------
-// Hàm khởi tạo Ballpit trên canvas, trả về các phương thức tương tác
+// ==============================
+// HÀM createBallpit: Khởi tạo Ballpit trên canvas, trả về các phương thức tương tác
 function createBallpit(e, t = {}) {
   const i = new x({
     canvas: e,
@@ -733,8 +733,9 @@ function createBallpit(e, t = {}) {
   };
 }
 
-// ------------------------
-// Component React Ballpit sử dụng useRef và useEffect để khởi tạo và dọn dẹp canvas
+// ==============================
+// COMPONENT Ballpit (React)
+// Sử dụng useRef và useEffect để khởi tạo và dọn dẹp canvas Ballpit.
 const Ballpit = ({ className = '', followCursor = true, ...props }) => {
   const canvasRef = useRef(null);
   const spheresInstanceRef = useRef(null);

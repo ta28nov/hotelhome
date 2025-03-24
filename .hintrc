@@ -15,7 +15,11 @@
       "default",
       {
         "ignore": [
-          "backdrop-filter"
+          "backdrop-filter",
+          "scrollbar-width",
+          "overscroll-behavior",
+          "overscroll-behavior: contain",
+          "scrollbar-width: none"
         ]
       }
     ]

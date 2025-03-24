@@ -1,0 +1,53 @@
+/* Section container */
+.intro-hotel-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Intro text styles */
+  .intro-text {
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .intro-tagline {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #e0a800;
+  }
+  
+  .intro-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  
+  .intro-description {
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+  
+  /* Grid container for images */
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 0.5rem;
+    height: 450px;
+  }
+  
+  /* Grid items (each image) */
+  .grid-item {
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+  }
+  
